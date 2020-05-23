@@ -18,18 +18,6 @@ I'll start with a simple function which also covers variables in this hypothetic
 
 ```json
 {
-    "globals": {
-      "g1": "{
-        \"header\": {
-          \"type\": \"test\"
-        },
-        \"body\": {
-          \"response\": {
-            \"field1\": \"actual_field1_value\"
-          }
-        }
-      }"
-    },
     "fn": "@equals: arg1, arg2 => bool",
     "arg1": {
       "fn": "@jsonpath: json, path => str",
@@ -45,7 +33,7 @@ I'll start with a simple function which also covers variables in this hypothetic
 
 
 In short the `code` we wrote, it takes a jsonpath, a jsonstring and an expected value, if the value at jsonpath in jsonstring matches the expected value it returns true else false.
-The jsonstring is not actually a variable to function but a global variable, this can be defined as a `globals` field as we have done but more likely through some exposed APIs in the parser. But once a global variable has been set it can be referred by the `@globals` function (we will see this more later)
+The jsonstring is not actually a variable to function but a global variable (we will see this more later on).
 
 So let's look at this one by one:
 ```json
@@ -82,7 +70,7 @@ Okay, now moving on you will see `arg1` and `arg2` defined in the following fiel
 ```
 
 So starting with `arg1`, this uses another built-in function `@jsonpath` which takes two arguments, `json` and `path` and returns a `str`, and then if you look inside it's another function call which uses 
-the `@globals` method that returns a globally defined variables (always look these configs from bottom up). Practically we wouldn't have `g1` already encodeded into the jsonconfig as in this example but actually set by some exposed API on the parser, so you have a json string on which you wanted to work on, then go ahead and add it as a global `named variable` in the parser API so the jsonconf can refer to it without any duplication.
+the `@globals` method that returns a globally defined variables (always look these configs from bottom up). The global variables will be set through some exposed API on the parser, if you have a json string on which you wanted to work on, then go ahead and add it as a global named variable in the parser API so the jsonconf can refer to it without duplication.
 
 ```js
 let jsonStr = "{ \"header\": { \"type\": \"test\" }, \"body\": { \"response\": { \"field1\": \"actual_field1_value\" } } }";
@@ -90,7 +78,7 @@ jsonconf.setGlobal("g1", jsonStr);
 ```
 this can be referred in `jsonconf` with:
 
-```js
+```json
 {
   "fn": "@globals: name => str",
   "name": "g1"
@@ -110,6 +98,21 @@ the type specified in the signature would be used for casting. By now it should 
 
 arg1 is now populated with the value at the path `body.response.field` which is `actual_field1_value`, this along with arg2 `value1` will be passed as arguments to `@equals` which returns `false` as they do not match.
 
+Some nice to have features:
 
+- Partial functions, and a namespace for storing functions in an object and then some way to referring those partial functions.
+- Simplyfying function calls with string arguments, especially useful when referring to globals. So it will enable us to write something like the above example as following:
+```json
+{
+  "fn": "@globals: name => str",
+  "name": "g1"
+}
+```
+can be converted to 
+```json
+{
+  "fn": "@globals: g1 => str",
+}
+```
 
-TODO: `@match_any|all`, `err` as a date type.
+- Need to thing more: errors, other functions @in, function which do certain things based on predicate
