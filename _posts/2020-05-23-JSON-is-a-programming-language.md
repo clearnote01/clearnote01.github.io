@@ -99,10 +99,10 @@ Moving on, now we have value in `json` which is a string, `path` is a json primi
 the type specified in the signature would be used for casting. By now it should be hopefully clear what will happen on the uppermost layer.
 
 ```json
-{   ...
+{      
 	"fn": "@equals: arg1, arg2 => bool",
-	"arg1": { .. },
-	"arg2": value1"
+	"arg1": { },
+	"arg2": "value1"
 }
 ```
 
