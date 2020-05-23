@@ -49,7 +49,7 @@ The jsonstring is not actually a variable to function but a global variable, thi
 
 So let's look at this one by one:
 ```json
-    "fn": "@equals: arg1, arg2 => bool",
+    "fn": "@equals: arg1, arg2 => bool"
 ```
 
 The key idea with jsonconf is that every json object represents a function call (repeat this in your head a few times)
@@ -68,6 +68,7 @@ So, yes all objects are functions calls but you can also have fields where value
 Okay, now moving on you will see `arg1` and `arg2` defined in the following fields:
 
 ```json
+{
     "arg1": {
       "fn": "@jsonpath: json, path => str",
       "json": {
@@ -77,6 +78,7 @@ Okay, now moving on you will see `arg1` and `arg2` defined in the following fiel
       "path": "body.response.field1"
     },
     "arg2": "value1"
+}
 ```
 
 So starting with `arg1`, this uses another built-in function `@jsonpath` which takes two arguments, `json` and `path` and returns a `str`, and then if you look inside it's another function call which uses 
