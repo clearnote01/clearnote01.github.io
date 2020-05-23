@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "JSON as a programming language!"
-subtitle: 'A thought expirement to explore JSON for nefarious means'
+subtitle: 'A thought experiment to explore JSON for nefarious means'
 author: "clearnote01"
 header-style: text
 tags:
