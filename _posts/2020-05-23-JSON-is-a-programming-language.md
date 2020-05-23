@@ -43,3 +43,16 @@ I'll start with a simple function which also covers variables in this hypothetic
 ```
 
 So this json object is a function, in fact every json object is a function in this hypothetical language.
+Even if you see the last line "arg2": "value1", this will be implicitly expanded to the below:
+```
+{
+  "arg2": {
+    "fn": "@literal val => str",
+    "val": "value1"
+  }
+}
+```
+However since it is such a common use case, this can be described automatically.
+
+
+So what does the above function do, let's go one by one...TBD
