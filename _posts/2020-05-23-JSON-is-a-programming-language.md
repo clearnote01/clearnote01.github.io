@@ -41,3 +41,5 @@ I'll start with a simple function which also covers variables in this hypothetic
     "arg2": "value1"
 }
 ```
+
+So this json object is a function, in fact every json object is a function in this hypothetical language.
