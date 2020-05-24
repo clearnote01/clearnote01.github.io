@@ -98,21 +98,96 @@ the type specified in the signature would be used for casting. By now it should 
 
 arg1 is now populated with the value at the path `body.response.field` which is `actual_field1_value`, this along with arg2 `value1` will be passed as arguments to `@equals` which returns `false` as they do not match.
 
+Okay now, following this logic, let's think of more complex constructs! like errors!, a program should have ways to panic, and then I want to see how we combine errors; conditionals (as we saw above). Here is a function call which returns err based on a predicate. We use the `@error` construct here:
+
+```json
+{
+	"error_call": {
+		"fn": "@error: predicate, err_msg, err_type => null|err",
+		"err_msg": "found an error!",
+		"err_type": "generic",
+		"predicate": {
+			"fn": "@equals: a,b => bool",
+			"a": "hello",
+			"b": "hello"
+		}
+	}
+}```
+
+
+This functioncall will return an exception as value of `a` and `b` match, and we get an error stored in `error_call`. Now someone needs to make sense of this return value, and yes, that will be another function! and this is the most useful piece of this puzzle, that makes sense of conditionals we saw before and then error calls we saw just now. All this is glued by ``@ok` and its variants. Let's see it one by one. 
+
+```json
+{
+	"result": {
+		"fn": "@ok data, error_call => str|err",
+		"error_call": "{..}",
+		"data": "hello world"
+	}
+}```
+As you can see here `@ok` takes 2 arguments, first argument can be of any type and any value and second argument is of error type, if there was any error the value of `error_call` would not be null, in that case `error_call` will be returned otherwise `data` will get returned. the return is either the `data` or `error_call` based on if `error_call` is null or not. 
+
+There is also `@all` and `@any` which are variadic functions and return bool based on input, since error handling is really important it can handle it automatically, if one of the argument is an error_call if the value is `null` that is ignored, otherwise it returns the `err` type, other than errors, `@all` and `@any` do the same thing as you would expect in any other language (all -> true if all arguments are true, any -> if any one argument is true). 
+
+```json 
+{
+	"result": {
+		"fn": "@all arg1, arg2, error_call1, arg3, error_call2 => bool|err",
+		"arg1": true,
+		"arg2": true,
+		"error_call1": " { .. fn: @error ..}",
+		"arg3": true,
+		"error_call2": " { .. fn: @error ..}"
+	}
+}```
+
+Now all this is, I think it's a bit interesting to think like that, but one thing we need to consider is performance, there is no way a dynamic piece of string being parsed at runtime can be performant,
+either it needs a statical code generation parser, or the parser needs to be very efficient that the overhead at runtime is minimal. I also got interested in a subset of this configuration, like I know function argument aliasing is nice what if we wrote the above block as:
+
+```json 
+{
+	"result": {
+		"fn": "@all: bool|err",
+		"arg1": true,
+		"arg2": true,
+		"error_call1": " { .. fn: @error ..}",
+		"arg3": true,
+		"error_call2": " { .. fn: @error ..}"
+	}
+}```
+
+Now as I write it like this it looks more and more appealing to me, this simplifies the job of parser a "lot". And I already repeated an object here represents a functioncall, so not needing to represent argument in signature is not a wild idea. We can go even further and represent `return` type as well and that is again an improvement in some sense.
+
+```json 
+{
+	"result": {
+		"fn": "@all",
+		"arg1": true,
+		"arg2": true,
+		"return": ["err", "bool"]
+	}
+}```
+
+Let's re-write the first bit of example in this manner,
+```json
+{
+    "fn": "@equals",
+    "arg1": {
+      "fn": "@jsonpath",
+      "json": {
+        "fn": "@globals",
+        "name": "g1",
+	"return": "str"
+      },
+      "path": "body.response.field1",
+      "return": "str"
+    },
+    "arg2": "value1"
+    "return": "bool"
+}
+```
+
+This still looks a bit off, how do exceptions come into picture here... like `@jsonpath` should return an `err` right if json string doesn't have the value at the given path. To that I say, I don't know, need to think more I suppose.
+
 Some nice to have features:
-
 - Partial functions, and a namespace for storing functions in an object and then some way to referring those partial functions.
-- Simplyfying function calls with string arguments, especially useful when referring to globals. So it will enable us to write something like the above example as following:
-```json
-{
-  "fn": "@globals: name => str",
-  "name": "g1"
-}
-```
-can be converted to 
-```json
-{
-  "fn": "@globals: g1 => str",
-}
-```
-
-- Need to thing more: errors, other functions @in, function which do certain things based on predicate
