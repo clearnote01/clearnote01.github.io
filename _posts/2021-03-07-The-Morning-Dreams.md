@@ -1,7 +1,7 @@
 ---
 layout: post
-title: "The Morning Fever Dream"
-subtitle: 'Finding another life'
+title: "The Morning Fever Dream!"
+subtitle: 'A life in another world'
 author: "clearnote01"
 header-style: text
 tags:
