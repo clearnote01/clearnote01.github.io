@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "The Fantastical Adventures of Monkey King! [1]"
-subtitle: 'Brash & bold, Gods favored son'
+subtitle: 'Brash & bold, God's favored son'
 author: "clearnote01"
 header-style: text
 tags:
